@@ -63,6 +63,14 @@ in a SQL-Database-file.
 :small_blue_diamond: *wake_up_mood* => Example: GOOD
 :small_blue_diamond: *wet_bed* => Example: NO
 
+:small_orange_diamond: **Importing data from JSON-File in Database-file:**
+
+    python3 json_to_db.py --file '[JSON-FILEPATH].json' --db '[DB-FILEPATH].db'
+
+Example:
+
+    python3 json_to_db.py --file 'my_json_file.json' --db 'my_database.db'
+
 ## ToDo
 - [ ] Export visualization as PDF
 - [ ] Export sleep-data in JSON
