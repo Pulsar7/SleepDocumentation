@@ -58,9 +58,13 @@ in a SQL-Database-file.
     }
 
 :small_blue_diamond: *MONTH* => Example: Jan
+
 :small_blue_diamond: *DATE* => Example: 1.1.
+
 :small_blue_diamond: *bedtime* => Example: 00:00
+
 :small_blue_diamond: *wake_up_mood* => Example: GOOD
+
 :small_blue_diamond: *wet_bed* => Example: NO
 
 :small_orange_diamond: **Importing data from JSON-File in Database-file:**
