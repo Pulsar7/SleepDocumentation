@@ -19,8 +19,7 @@ class Visualization():
         self.wake_up_moods = wake_up_moods
         self.wet_bed_options = wet_bed_options
         self.tables = tables
-
-    
+        
     def help(self) -> None:
         self.console.rule()
         for command in self.commands:
