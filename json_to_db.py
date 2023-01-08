@@ -25,7 +25,7 @@ def calc_sleep_duration(bedtime:str,wake_up_time:str) -> str: # copied from 'sle
     delta = str(delta)
     return delta
 
-def main(file:str,db_filepath:str) -> None:
+def main(file:str,db_filepath:str,year:str) -> None:
     with open(file,'r') as json_file_data:
         data = json.load(json_file_data)
     with closing(sqlite3.connect(db_filepath)) as connection:
@@ -40,7 +40,7 @@ def main(file:str,db_filepath:str) -> None:
                         notes:str = ", ".join(data[month][day]['notes'])
                     else:
                         notes:str = " "
-                    day = day+"2022"
+                    day = day+year
                     sleep_duration:str = calc_sleep_duration(bedtime = bedtime, wake_up_time = wake_up_time)
                     cursor.execute(f"INSERT INTO Days VALUES(?,?,?,?,?,?,?)", (day,bedtime,
                         wake_up_time, wake_up_mood, wet_bed, notes.upper(), sleep_duration
@@ -50,10 +50,17 @@ def main(file:str,db_filepath:str) -> None:
 parser = argparse.ArgumentParser()
 parser.add_argument('-f','--file',help="JSON-File")
 parser.add_argument('-d','--db',help="DB-File")
+parser.add_argument('-y','--year',help="Year")
 args = parser.parse_args()
-if args.file == None:
+if args.file == None or args.db == None or args.year == None:
+    parser.print_help()
+    sys.exit()
+try:
+    year = int(args.year)
+except ValueError as error:
+    print(f"'{args.year}' is not a valid year!\n{str(error)}\n")
     parser.print_help()
     sys.exit()
 
 if __name__ == '__main__':
-    main(file = args.file, db_filepath = args.db)
+    main(file = args.file, db_filepath = args.db, year = args.year)
