@@ -213,7 +213,7 @@ class VISUALIZE():
         self.ax[0][1].legend(loc='best')
         self.ax[0][1].grid(True)
         self.ax[0][1].set_xticks(np.arange(0, len(months), 1))
-        self.ax[0][1].set_yticks(np.arange(0, max(average_sleep_durations), 0.5))
+        self.ax[0][1].set_yticks(np.arange(0, max(average_sleep_durations)+0.5, 0.5))
     
     def show_year(self) -> None:
         year:str = self.console.input(f"[yellow]Enter year>[purple] ")
@@ -309,6 +309,14 @@ class VISUALIZE():
                             'sleep_duration': this_sleep_duration
                         }
                 if len(data) > 0:
+                    args:list[str] = list(data.keys())[0].split("-")
+                    month_and_year:str = "-"+args[1]+"-"+args[2]
+                    sorted_dates:list[str] = sorted([int(date.split("-")[0]) for date in data.keys()])
+                    sorted_data:dict = {}
+                    for date in sorted_dates:
+                        date:str = str(date)+month_and_year
+                        sorted_data[date] = data[date]
+                    data = sorted_data
                     self.create_figures()
                     self.build_bedtime_and_wake_up_time_pies(data = data) # fig2
                     (sleep_durations,average_sleep_dur,days) = self.build_sleep_duration_days(data = data, 
