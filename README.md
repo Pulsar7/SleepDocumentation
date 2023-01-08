@@ -10,6 +10,7 @@ A precise overview of your own sleep and possible influences on sleeping behavio
 
 * :point_right: [Installation](#installation)
 * :point_right: [Usage](#usage)
+* :point_right: [Import](#import)
 * :point_right: [ToDo](#ToDo)
 * :point_right: [Suggestions & Reports](#suggestions--reports)
 
@@ -38,8 +39,34 @@ or
 
 Then enter the *database-filepath* in the given input.
 
+
+## Import
+If there is already an existing JSON-File, the script *json_to_db.py* is able to save the content of the JSON-File
+in a SQL-Database-file.
+
+:small_orange_diamond: **The JSON-File format of every entry / SYNTAX in JSON-File:**
+
+    {
+        "MONTH": {
+            "DATE": {
+                "bedtime": "HH:MM",
+                "wake_up_time": "HH:MM",
+                "wake_up_mood": "[PERFECT,GOOD OR BAD]",
+                "wet_bed": "[YES OR NO]"
+            }
+        }
+    }
+
+:small_blue_diamond: *MONTH* => Example: Jan
+:small_blue_diamond: *DATE* => Example: 1.1.
+:small_blue_diamond: *bedtime* => Example: 00:00
+:small_blue_diamond: *wake_up_mood* => Example: GOOD
+:small_blue_diamond: *wet_bed* => Example: NO
+
 ## ToDo
-- [ ] 
+- [ ] Export visualization as PDF
+- [ ] Export sleep-data in JSON
+- [ ] Export sleep-data in XLSX
 
 
 ## Suggestions & Reports
