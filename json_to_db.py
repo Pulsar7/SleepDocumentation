@@ -1,3 +1,8 @@
+"""
+@Name: Sleepdoku - Import JSON
+@Author: Benedikt Fichtner
+@2022 (gregorianischer Kalender)/Version 2.0/JSON-TO-DB
+"""
 import sqlite3,json,argparse,sys,datetime as dt
 from datetime import datetime
 from contextlib import closing
