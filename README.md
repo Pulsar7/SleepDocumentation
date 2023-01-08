@@ -19,6 +19,7 @@ Ein möglichst genauer Überblick über den eigenen Schlaf und möglicher Einfl�
  
     sudo apt-get install git
     git clone https://github.com/Pulsar7/Schlafdokumentation.git
+    cd Schlafdokumentation
 
 :small_orange_diamond: **Create virtual environment & install requirements**
 
