@@ -42,7 +42,7 @@ def main(file:str,db_filepath:str,year:str) -> None:
                         wake_up_mood:str = data[month][day]['wake_up_mood'].upper()
                         wet_bed:str = data[month][day]['wet_bed'].upper()
                         if 'notes' in data[month][day]:
-                            notes:str = ", ".join(data[month][day]['notes'])
+                            notes:str = "; ".join(data[month][day]['notes'])
                         else:
                             notes:str = " "
                         sleep_duration:str = calc_sleep_duration(bedtime = bedtime, wake_up_time = wake_up_time)

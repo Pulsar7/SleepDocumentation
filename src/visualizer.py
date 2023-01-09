@@ -8,11 +8,10 @@ import matplotlib.pyplot as plt
 from rich.table import Table
 
 class VISUALIZE():
-    def __init__(self,console,db,tables) -> None:
+    def __init__(self,console,db,tables,note_seperator:str) -> None:
         (self.console,self.db, self.tables) = (console,db,tables)
-        self.month_names = [
-            "Jan","Feb","Mar","Apr","Mai","Jun","Jul","Aug","Oct","Nov","Dec"
-        ]
+        self.month_names = ["Jan","Feb","Mar","Apr","Mai","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+        self.note_seperator:str = note_seperator
 
     def create_figures(self) -> None:
         (fig, ax) = plt.subplots(2, 2, constrained_layout=True)
@@ -229,38 +228,38 @@ class VISUALIZE():
         self.ax[0][1].set_xticks(np.arange(0, len(months), 1))
         self.ax[0][1].set_yticks(np.arange(0, max(average_sleep_durations)+0.5, 0.5))
 
+    def get_all_notes(self,data:dict) -> list[str]:
+        all_notes:list[str] = []
+        for date in data:
+            notes:list = data[date]['notes'].split(self.note_seperator)
+            for note in notes:
+                note:str = note.strip().lower()
+                if note not in all_notes:
+                    all_notes.append(note)
+        return all_notes
+
     def build_monthly_notes_graph(self,data:dict) -> None:
         ### Notes before bedtime (months)
         notes_data = {}
         (months,years) = self.get_months_and_years(days = data) # years is here unnecessary
-        unsorted_notes_data = {}
-        for month in months: unsorted_notes_data[self.month_names[month-1]] = {}
-        all_notes:list = []
-        for day in data:
-            notes_string:str = data[day]['notes']
-            notes:list[str] = []
-            if notes_string != "" and notes_string != " " and "," in notes_string:
-                notes = notes_string.split(",")
-                for note in notes:
-                    note:str = note.lower()
-                    if note not in all_notes:
-                        all_notes.append(note)
-        print("HEY!")
-        print(all_notes,months)
-        for month in months:
-            for note in all_notes:
-                unsorted_notes_data[self.month_names[month-1]][note] = 0
+        unsorted_notes_data:dict = {}
+        notes_data:list[str] = []
+        all_notes:list[str] = self.get_all_notes(data = data)
         for date in data:
-            notes_string:str = data[day]['notes']
-            notes:list[str] = []
-            if notes_string != "" and notes_string != " " and "," in notes_string:
-                notes = notes_string.split(",")
-                this_month:str = self.month_names[int(date.split("-")[1])-1]
-                for note in notes:
-                    note = note.lower()
+            this_month = self.month_names[(int(date.split("-")[1])-1)]
+            if this_month not in list(unsorted_notes_data.keys()):
+                unsorted_notes_data[this_month] = {}
+                for note in all_notes:
+                    unsorted_notes_data[this_month][note] = 0
+            args:list = data[date]['notes'].split(self.note_seperator)
+            this_notes:list = [element.strip().lower() for element in args]
+            for note in all_notes:
+                if note in this_notes:
                     unsorted_notes_data[this_month][note] += 1
-        self.console.log(unsorted_notes_data)
-        self.ax[0][0].stackplot(months,notes_data,labels = list(notes_data.keys()), alpha = 0.8)
+        notes_data = []
+        for month in unsorted_notes_data:
+            notes_data.append([unsorted_notes_data[month][note] for note in unsorted_notes_data[month]])
+        self.ax[0][0].stackplot(months,notes_data,labels = all_notes, alpha = 0.8)
         self.ax[0][0].legend(loc = "best")
         self.ax[0][0].set_xlabel("Months")
         self.ax[0][0].set_ylabel("Quantities")

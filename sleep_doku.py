@@ -12,13 +12,14 @@ from rich.table import Table
 
 class Visualization():
     def __init__(self,console:cons.Console,db,commands:dict,db_filepath:str,datetime_format:str,wake_up_moods:list[str],
-            wet_bed_options:list[str],tables:dict,vis) -> None:
+            wet_bed_options:list[str],tables:dict,vis,note_seperator:str) -> None:
         (self.console,self.db,self.db_filepath,self.vis) = (console,db,db_filepath,vis)
         (self.close_command,self.commands) = ("close()",commands)
         self.datetime_format = datetime_format
         self.wake_up_moods = wake_up_moods
         self.wet_bed_options = wet_bed_options
         self.tables = tables
+        self.note_seperator = note_seperator
         
     def help(self) -> None:
         self.console.rule()
@@ -143,7 +144,8 @@ class Visualization():
                                     self.console.log(f"({x}) set {key} = NEW VALUE")
                                 x += 1
                             self.console.rule()
-                            self.console.log(f"[yellow]Type in 'end' to finish")
+                            self.console.log(f"[yellow]Notes-seperator: '{self.note_seperator}'")
+                            self.console.log("[yellow]Type in 'end' to finish")
                             set_commands:list[str] = []
                             while (set_command_state == True and error_counter <= max_errors):
                                 set_command:str = str(self.console.input("[yellow]>[purple] ")).lower()
@@ -404,6 +406,7 @@ commands:dict = {
 datetime_format:str = "DD-MM-YYYY" # day.month.year
 wake_up_moods:list[str] = ["PERFECT","GOOD","BAD"]
 wet_bed_options:list[str] = ["YES","NO"]
+note_seperator:str = ";"
 #
 pretty.install()
 console = cons.Console()
@@ -419,13 +422,13 @@ if db_filepath == "" or db_filepath == " " or ".db" not in db_filepath:
     console.log("[red]Incorrect database filepath!")
     sys.exit()
 db = database.Database(console = console, db_filepath = db_filepath, tables = tables)
-vis = visualizer.VISUALIZE(console = console, db = db, tables = tables)
+vis = visualizer.VISUALIZE(console = console, db = db, tables = tables, note_seperator = note_seperator)
 #
 
 if __name__ == '__main__':
     os.system("clear")
     visualisation = Visualization(console = console, db = db, commands = commands, db_filepath = db_filepath,
         datetime_format = datetime_format, wake_up_moods = wake_up_moods, wet_bed_options = wet_bed_options, 
-        tables = tables, vis = vis
+        tables = tables, vis = vis, note_seperator = note_seperator
     )
     visualisation.run()

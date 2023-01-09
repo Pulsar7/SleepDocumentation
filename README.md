@@ -33,11 +33,11 @@ A precise overview of your own sleep and possible influences on sleeping behavio
 
     python3 sleep_doku.py --file '[DATABASE_PATH].db'
 
-or 
+or - enter the *database-filepath* in the given input:
 
     python3 sleep_doku.py 
 
-Then enter the *database-filepath* in the given input.
+For *help*, enter: `help`
 
 
 ## Import
@@ -52,7 +52,8 @@ in a SQL-Database-file.
                 "bedtime": "HH:MM",
                 "wake_up_time": "HH:MM",
                 "wake_up_mood": "[PERFECT,GOOD OR BAD]",
-                "wet_bed": "[YES OR NO]"
+                "wet_bed": "[YES OR NO]",
+                "notes": ["note1", "note2", "note3", "note4"]
             }
         }
     }
@@ -64,6 +65,7 @@ in a SQL-Database-file.
 |bedtime|00:00|
 |wake_up_mood|GOOD|
 |wet_bed|NO|
+|notes|["note1", "note2", "note3", "note4"]|
 
 :small_orange_diamond: **Importing data from JSON-File in Database-file:**
 
