@@ -10,7 +10,9 @@ from rich.table import Table
 class VISUALIZE():
     def __init__(self,console,db,tables) -> None:
         (self.console,self.db, self.tables) = (console,db,tables)
-
+        self.month_names = [
+            "Jan","Feb","Mar","Apr","Mai","Jun","Jul","Aug","Oct","Nov","Dec"
+        ]
 
     def create_figures(self) -> None:
         (fig, ax) = plt.subplots(2, 2, constrained_layout=True)
@@ -26,6 +28,18 @@ class VISUALIZE():
         fig3.set_figwidth(13)
         fig3.set_figheight(7)
         (self.fig,self.fig2,self.fig3,self.ax,self.ax2,self.ax3) = (fig,fig2,fig3,ax,ax2,ax3)
+
+    def get_months_and_years(self,days:dict) -> tuple((list[str],list[str])):
+        months:list[str] = []
+        years:list[str] = []
+        for date in days:
+            month:str = int(date.split("-")[1])
+            year:str = int(date.split("-")[2])
+            if month not in months:
+                months.append(month)
+            if year not in years:
+                years.append(year)
+        return (months,years)
 
     def build_bedtime_and_wake_up_time_pies(self,data:dict) -> None:
         ### Bedtime overview - percent (hours:minutes)
@@ -189,7 +203,7 @@ class VISUALIZE():
                 va="center", color="white", fontsize=13, fontweight="bold")
 
 
-    def build_month_average_sleep_duration(self,data:dict) -> None:
+    def build_monthly_average_sleep_duration(self,data:dict) -> None:
         ### Average sleep duration - of every month (in hours)
         graph_data:dict = {}
         months:list[str] = []
@@ -214,6 +228,44 @@ class VISUALIZE():
         self.ax[0][1].grid(True)
         self.ax[0][1].set_xticks(np.arange(0, len(months), 1))
         self.ax[0][1].set_yticks(np.arange(0, max(average_sleep_durations)+0.5, 0.5))
+
+    def build_monthly_notes_graph(self,data:dict) -> None:
+        ### Notes before bedtime (months)
+        notes_data = {}
+        (months,years) = self.get_months_and_years(days = data) # years is here unnecessary
+        unsorted_notes_data = {}
+        for month in months: unsorted_notes_data[self.month_names[month-1]] = {}
+        all_notes:list = []
+        for day in data:
+            notes_string:str = data[day]['notes']
+            notes:list[str] = []
+            if notes_string != "" and notes_string != " " and "," in notes_string:
+                notes = notes_string.split(",")
+                for note in notes:
+                    note:str = note.lower()
+                    if note not in all_notes:
+                        all_notes.append(note)
+        print("HEY!")
+        print(all_notes,months)
+        for month in months:
+            for note in all_notes:
+                unsorted_notes_data[self.month_names[month-1]][note] = 0
+        for date in data:
+            notes_string:str = data[day]['notes']
+            notes:list[str] = []
+            if notes_string != "" and notes_string != " " and "," in notes_string:
+                notes = notes_string.split(",")
+                this_month:str = self.month_names[int(date.split("-")[1])-1]
+                for note in notes:
+                    note = note.lower()
+                    unsorted_notes_data[this_month][note] += 1
+        self.console.log(unsorted_notes_data)
+        self.ax[0][0].stackplot(months,notes_data,labels = list(notes_data.keys()), alpha = 0.8)
+        self.ax[0][0].legend(loc = "best")
+        self.ax[0][0].set_xlabel("Months")
+        self.ax[0][0].set_ylabel("Quantities")
+        self.ax[0][0].grid(color = 'gray', alpha = 0.9, linestyle = '--', linewidth = 0.6)
+        self.ax[0][0].set_title("Notes before bedtime (months)")
     
     def show_year(self) -> None:
         year:str = self.console.input(f"[yellow]Enter year>[purple] ")
@@ -247,8 +299,9 @@ class VISUALIZE():
                         }
                 if len(year_data) > 0:
                     self.create_figures()
-                    self.build_month_average_sleep_duration(data = year_data) # fig1
+                    self.build_monthly_average_sleep_duration(data = year_data) # fig1
                     self.build_monthly_wake_up_mood_bar_graph(data = year_data) # fig1
+                    self.build_monthly_notes_graph(data = year_data) # fig1
                     self.build_bedtime_and_wake_up_time_pies(data = year_data) # fig2
                     (sleep_durations,average_sleep_dur,days) = self.build_sleep_duration_days(data = year_data, 
                         sleep_goal = sleep_goal) # fig3

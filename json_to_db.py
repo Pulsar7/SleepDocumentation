@@ -32,22 +32,29 @@ def main(file:str,db_filepath:str,year:str) -> None:
         with closing(connection.cursor()) as cursor:
             for month in data:
                 for day in data[month]:
-                    bedtime:str = data[month][day]['bedtime']
-                    wake_up_time:str = data[month][day]['wake_up_time']
-                    wake_up_mood:str = data[month][day]['wake_up_mood'].upper()
-                    wet_bed:str = data[month][day]['wet_bed'].upper()
-                    if 'notes' in data[month][day]:
-                        notes:str = ", ".join(data[month][day]['notes'])
-                    else:
-                        notes:str = " "
-                    day = day+year
-                    sleep_duration:str = calc_sleep_duration(bedtime = bedtime, wake_up_time = wake_up_time)
-                    cursor.execute(f"INSERT INTO Days VALUES(?,?,?,?,?,?,?)", (day,bedtime,
-                        wake_up_time, wake_up_mood, wet_bed, notes.upper(), sleep_duration
-                    ))
-                    connection.commit()
+                    args:list = day.split(".")
+                    date:str = args[0]+"-"+args[1]+"-"+year
+                    sys.stdout.write(f"\rImporting day '{date}'...")
+                    sys.stdout.flush()
+                    try:
+                        bedtime:str = data[month][day]['bedtime']
+                        wake_up_time:str = data[month][day]['wake_up_time']
+                        wake_up_mood:str = data[month][day]['wake_up_mood'].upper()
+                        wet_bed:str = data[month][day]['wet_bed'].upper()
+                        if 'notes' in data[month][day]:
+                            notes:str = ", ".join(data[month][day]['notes'])
+                        else:
+                            notes:str = " "
+                        sleep_duration:str = calc_sleep_duration(bedtime = bedtime, wake_up_time = wake_up_time)
+                        cursor.execute(f"INSERT INTO Days VALUES(?,?,?,?,?,?,?)", (date,bedtime,
+                            wake_up_time, wake_up_mood, wet_bed, notes.upper(), sleep_duration
+                        ))
+                        connection.commit()
+                        print("O.K.")
+                    except Exception as error:
+                        print(f"ERROR\n{str(error)}")
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser("SleepDoku / Import data from JSON")
 parser.add_argument('-f','--file',help="JSON-File")
 parser.add_argument('-d','--db',help="DB-File")
 parser.add_argument('-y','--year',help="Year")
