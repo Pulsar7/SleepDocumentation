@@ -67,10 +67,15 @@ in a SQL-Database-file.
 
 :small_orange_diamond: **Importing data from JSON-File in Database-file:**
 
+    python3 sleep_doku.py --file '[DATABASE_PATH].db'
     python3 json_to_db.py --file '[JSON-FILEPATH].json' --db '[DB-FILEPATH].db'
+
+
+**Important here**: To create the 'Days'-Table in the database, you have to start the script 'sleep_doku.py' before importing your JSON-File!
 
 Example:
 
+    python3 sleep_doku.py --file 'my_database.db'
     python3 json_to_db.py --file 'my_json_file.json' --db 'my_database.db'
 
 ## ToDo
