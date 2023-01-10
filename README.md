@@ -112,9 +112,7 @@ This options shows you the data of all days in the given year and a specific mon
 * Sleep duration of each day (in hours)
 
 
-
-
-# Enuresis nocturna
+## Enuresis nocturna
 
 > Enuresis nocturna is defined as normal filling and normal emptying of the urinary bladder at the wrong time (sleep) and in the wrong place (bed) in a child after the age of 5. The symptom enuresis nocturna must be differentiated from primary monosymptomatic enuresis nocturna as an indication of an underlying disorder. This is possible by means of a non-invasive diagnosis that does not stress the child by means of a structured anamnesis interview, physical examination, urine examination and sonography of the urinary tract. The cause of monosymptomatic enuresis nocturna is a genetically determined wake-up disorder in the sense of a partial developmental delay. ^[Klinik und Diagnostik der Enuresis nocturna](https://link.springer.com/article/10.1007/s00112-003-0783-1)
 
