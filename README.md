@@ -31,7 +31,7 @@ A precise overview of your own sleep and possible influences on sleeping behavio
 
 ## Usage
 
-    python3 sleep_doku.py --file '[DATABASE_PATH].db'
+    python3 sleep_doku.py --db '[DATABASE_PATH].db'
 
 or - enter the *database-filepath* in the given input:
 
@@ -69,7 +69,7 @@ in a SQL-Database-file.
 
 :small_orange_diamond: **Importing data from JSON-File in Database-file:**
 
-    python3 sleep_doku.py --file '[DATABASE_PATH].db'
+    python3 sleep_doku.py --db '[DATABASE_PATH].db'
     > 'close'
     python3 json_to_db.py --file '[JSON-FILEPATH].json' --db '[DB-FILEPATH].db'
 
@@ -78,7 +78,7 @@ in a SQL-Database-file.
 
 Example:
 
-    python3 sleep_doku.py --file 'my_database.db'
+    python3 sleep_doku.py --db 'my_database.db'
     > 'close'
     python3 json_to_db.py --file 'my_json_file.json' --db 'my_database.db'
 

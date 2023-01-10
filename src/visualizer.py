@@ -6,6 +6,8 @@
 import sys,numpy as np
 import matplotlib.pyplot as plt
 from rich.table import Table
+from rich.tree import Tree
+from rich import print as pr
 
 class VISUALIZE():
     def __init__(self,console,db,tables,note_seperator:str) -> None:
@@ -240,35 +242,36 @@ class VISUALIZE():
 
     def build_monthly_notes_graph(self,data:dict) -> None:
         ### Notes before bedtime (months)
-        notes_data = {}
         (months,years) = self.get_months_and_years(days = data) # years is here unnecessary
-        unsorted_notes_data:dict = {}
-        notes_data:list[str] = []
         all_notes:list[str] = self.get_all_notes(data = data)
+        note_dict:dict = {}
+        for note in all_notes:
+            note_dict[note] = [0 for i in range(0,len(months))]
         for date in data:
-            this_month = self.month_names[(int(date.split("-")[1])-1)]
-            if this_month not in list(unsorted_notes_data.keys()):
-                unsorted_notes_data[this_month] = {}
-                for note in all_notes:
-                    unsorted_notes_data[this_month][note] = 0
-            args:list = data[date]['notes'].split(self.note_seperator)
-            this_notes:list = [element.strip().lower() for element in args]
-            for note in all_notes:
-                if note in this_notes:
-                    unsorted_notes_data[this_month][note] += 1
-        notes_data = []
-        for month in unsorted_notes_data:
-            notes_data.append([unsorted_notes_data[month][note] for note in unsorted_notes_data[month]])
-        self.ax[0][0].stackplot(months,notes_data,labels = all_notes, alpha = 0.8)
+            month:int = int(date.split('-')[1])
+            day_notes:list[str] = data[date]['notes'].split(self.note_seperator)
+            for note in day_notes:
+                note = note.strip().lower()
+                note_dict[note][months.index(month)] += 1
+        months = [self.month_names[month-1] for month in months]
+        self.ax[0][0].stackplot(months,note_dict.values(),labels = all_notes, alpha = 0.8)
         self.ax[0][0].legend(loc = "best")
         self.ax[0][0].set_xlabel("Months")
         self.ax[0][0].set_ylabel("Quantities")
         self.ax[0][0].grid(color = 'gray', alpha = 0.9, linestyle = '--', linewidth = 0.6)
         self.ax[0][0].set_title("Notes before bedtime (months)")
+        tree = Tree("Notes Overview")
+        for month in months:
+            mo = tree.add(f"[yellow]{month}")
+            for note in note_dict:
+                no = mo.add(f"[green]{note}")
+                no.add(f"[cyan]{str(note_dict[note][months.index(month)])}")
+        pr(tree)
+        
     
     def show_year(self) -> None:
         year:str = self.console.input(f"[yellow]Enter year>[purple] ")
-        sleep_goal:str = self.console.input(f"[yellow]Enter goal goal - in hours (0 if not)>[purple] ")
+        sleep_goal:str = self.console.input(f"[yellow]Enter sleep goal - in hours (0 if not)>[purple] ")
         if sleep_goal == "0":
             sleep_goal = False
         else:

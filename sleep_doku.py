@@ -411,13 +411,13 @@ note_seperator:str = ";"
 pretty.install()
 console = cons.Console()
 parser = argparse.ArgumentParser()
-parser.add_argument('-f','--file', help="Database filepath (example: my_data.db)")
+parser.add_argument('-f','--db', help="Database filepath (example: '/home/user/my_data.db')")
 args:list = parser.parse_args()
-if args.file == None:
+if args.db == None:
     parser.print_help()
     db_filepath:str = str(console.input("[yellow]Sleep-Doku[white]/[yellow]Database-Path[white]:[cyan] "))
 else:
-    db_filepath:str = args.file
+    db_filepath:str = args.db
 if db_filepath == "" or db_filepath == " " or ".db" not in db_filepath:
     console.log("[red]Incorrect database filepath!")
     sys.exit()
