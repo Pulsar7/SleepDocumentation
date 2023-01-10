@@ -173,22 +173,23 @@ class VISUALIZE():
             month:str = day.split("-")[1]
             wake_up_mood:str = data[day]['wake_up_mood'].lower()
             if month not in wake_up_moods['months']:
-                wake_up_moods['months'].append(month)
+                wake_up_moods['months'].append(int(month))
                 wake_up_moods[wake_up_mood].append(1)
                 for mood in wake_up_moods:
                     if mood != "months" and mood != wake_up_mood:
                         wake_up_moods[mood].append(0)
             else:
                 wake_up_moods[wake_up_mood][wake_up_moods['months'].index(month)] += 1
-        width = 0.35 
+        width = 0.35
+        months = [self.month_names[month-1] for month in wake_up_moods['months']]
         p = np.array(wake_up_moods['perfect'])
         g = np.array(wake_up_moods['good'])
         b = np.array(wake_up_moods['bad'])
-        bar1 = self.ax[1][0].bar(wake_up_moods['months'],p,width, color='limegreen', align='center',
+        bar1 = self.ax[1][0].bar(months,p,width, color='limegreen', align='center',
             edgecolor='white', label="Perfect mood")
-        bar2 = self.ax[1][0].bar(wake_up_moods['months'],g,width, color='orange', edgecolor='white', align='center',
+        bar2 = self.ax[1][0].bar(months,g,width, color='orange', edgecolor='white', align='center',
             label="Good mood", bottom = p)
-        bar3 = self.ax[1][0].bar(wake_up_moods['months'],b,width, color='red', align='center',
+        bar3 = self.ax[1][0].bar(months,b,width, color='red', align='center',
             label="Bad mood", bottom = p+g, edgecolor='white')
         self.ax[1][0].legend(loc='best')
         self.ax[1][0].set_title("Wake up mood (Months)")
@@ -220,6 +221,7 @@ class VISUALIZE():
             for t in graph_data[month]:
                 average_dur += t
             average_sleep_durations.append(average_dur/len(graph_data[month]))
+        months = [self.month_names[int(month)-1] for month in months]
         self.ax[0][1].plot(months,average_sleep_durations,linewidth = 1.5,color="royalblue",linestyle = "-",
             label = "Average sleep duration (in hours) per month",marker = "o"
         )
@@ -242,7 +244,7 @@ class VISUALIZE():
 
     def build_monthly_notes_graph(self,data:dict) -> None:
         ### Notes before bedtime (months)
-        (months,years) = self.get_months_and_years(days = data) # years is here unnecessary
+        (months,years) = self.get_months_and_years(days = data) # years are here unnecessary
         all_notes:list[str] = self.get_all_notes(data = data)
         note_dict:dict = {}
         for note in all_notes:
@@ -266,9 +268,30 @@ class VISUALIZE():
             for note in note_dict:
                 no = mo.add(f"[green]{note}")
                 no.add(f"[cyan]{str(note_dict[note][months.index(month)])}")
-        pr(tree)
-        
-    
+        pr(tree), print("\n")
+
+    def build_monthly_wet_bed_graph(self,data:dict) -> None:
+        ### Number of wet beds (months)
+        (months,years) = self.get_months_and_years(days = data) # years are here unnecessary
+        numbers:list[int] = [0 for i in range(0,len(months))]
+        average_number:int = 0
+        for day in data:
+            month:str = int(day.split("-")[1])
+            if "yes" in data[day]['wet_bed'].strip().lower():
+                numbers[months.index(month)] += 1
+        for number in numbers: average_number += number
+        average_number = (average_number/len(numbers))
+        average_numbers:list[int] = [average_number for i in range(0,len(numbers))]
+        months = [self.month_names[month-1] for month in months]
+        self.ax[1][1].plot(months,numbers,linewidth = 1,color="purple",linestyle="-",
+            label="Number of wet beds per month")
+        self.ax[1][1].plot(months,average_numbers,linewidth = 1.5, color="seagreen",linestyle="-.",
+            label="Average number of wet beds"
+        )
+        self.ax[1][1].legend(loc = "best")
+        self.ax[1][1].grid(True)
+        self.ax[1][1].set_title("Number of wet beds (months)")
+
     def show_year(self) -> None:
         year:str = self.console.input(f"[yellow]Enter year>[purple] ")
         sleep_goal:str = self.console.input(f"[yellow]Enter sleep goal - in hours (0 if not)>[purple] ")
@@ -304,6 +327,7 @@ class VISUALIZE():
                     self.build_monthly_average_sleep_duration(data = year_data) # fig1
                     self.build_monthly_wake_up_mood_bar_graph(data = year_data) # fig1
                     self.build_monthly_notes_graph(data = year_data) # fig1
+                    self.build_monthly_wet_bed_graph(data = year_data) # fig1
                     self.build_bedtime_and_wake_up_time_pies(data = year_data) # fig2
                     (sleep_durations,average_sleep_dur,days) = self.build_sleep_duration_days(data = year_data, 
                         sleep_goal = sleep_goal) # fig3
