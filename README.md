@@ -12,6 +12,7 @@ A precise overview of your own sleep and possible influences on sleeping behavio
 * :point_right: [Usage](#usage)
 * :point_right: [Import data](#import-data)
 * :point_right: [Overview](#overview)
+* :point_right: [Enuresis nocturna](#enuresis-nocturna)
 * :point_right: [ToDo](#ToDo)
 * :point_right: [Suggestions & Reports](#suggestions--reports)
 
@@ -90,8 +91,9 @@ You have two options to show your sleep-data with graphics:
 1. Year - Overview
 2. Month - Overview
 
+
 ### Year-Overview
-It shows you the data of all days with the given year and creates four windows: 
+It shows you the data of all days with the given year and creates three windows: 
     
 * Wet bed, Average sleep duration & Wake-up-mood
 * Bedtime & Wake-Up-Time (hours:minutes)
@@ -99,17 +101,24 @@ It shows you the data of all days with the given year and creates four windows:
 
 
 ### Month-Overview
-This options shows you the data of all days in the given year and a specific month. Then it creates four windows:
+This options shows you the data of all days in the given year and a specific month. Then it creates three windows:
 
 * Wet bed, Average sleep duration & Wake-up-mood
-
-    Difference to *Year-Overview*: The average sleep duration of weeks is displayed.
+    > Difference to *Year-Overview*: The average sleep duration of weeks is displayed.
 
 * Bedtime & Wake-Up-Time (hours:minutes)
-
-    Difference to *Year-Overview*: Shows only the bed- & wake-up-times of the specific month.
+    > Difference to *Year-Overview*: Shows only the bed- & wake-up-times of the specific month.
 
 * Sleep duration of each day (in hours)
+
+
+
+
+# Enuresis nocturna
+
+> Enuresis nocturna is defined as normal filling and normal emptying of the urinary bladder at the wrong time (sleep) and in the wrong place (bed) in a child after the age of 5. The symptom enuresis nocturna must be differentiated from primary monosymptomatic enuresis nocturna as an indication of an underlying disorder. This is possible by means of a non-invasive diagnosis that does not stress the child by means of a structured anamnesis interview, physical examination, urine examination and sonography of the urinary tract. The cause of monosymptomatic enuresis nocturna is a genetically determined wake-up disorder in the sense of a partial developmental delay. ^[Klinik und Diagnostik der Enuresis nocturna](https://link.springer.com/article/10.1007/s00112-003-0783-1)
+
+Enuresis nocturna comes in different forms and there are millions of people who are affected by it.
 
 
 
