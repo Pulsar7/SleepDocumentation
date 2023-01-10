@@ -10,7 +10,8 @@ A precise overview of your own sleep and possible influences on sleeping behavio
 
 * :point_right: [Installation](#installation)
 * :point_right: [Usage](#usage)
-* :point_right: [Import](#import)
+* :point_right: [Import data](#import-data)
+* :point_right: [Overview](#overview)
 * :point_right: [ToDo](#ToDo)
 * :point_right: [Suggestions & Reports](#suggestions--reports)
 
@@ -40,7 +41,7 @@ or - enter the *database-filepath* in the given input:
 For *help*, enter: `help`
 
 
-## Import
+## Import Data
 If there is already an existing JSON-File, the script *json_to_db.py* is able to save the content of the JSON-File
 in a SQL-Database-file.
 
@@ -81,6 +82,36 @@ Example:
     python3 sleep_doku.py --db 'my_database.db'
     > 'close'
     python3 json_to_db.py --file 'my_json_file.json' --db 'my_database.db'
+
+
+## Overview
+You have two options to show your sleep-data with graphics:
+
+1. Year - Overview
+2. Month - Overview
+
+### Year-Overview
+It shows you the data of all days with the given year and creates four windows: 
+    
+* Wet bed, Average sleep duration & Wake-up-mood
+* Bedtime & Wake-Up-Time (hours:minutes)
+* Sleep duration of each day (in hours)
+
+
+### Month-Overview
+This options shows you the data of all days in the given year and a specific month. Then it creates four windows:
+
+* Wet bed, Average sleep duration & Wake-up-mood
+
+    Difference to *Year-Overview*: The average sleep duration of weeks is displayed.
+
+* Bedtime & Wake-Up-Time (hours:minutes)
+
+    Difference to *Year-Overview*: Shows only the bed- & wake-up-times of the specific month.
+
+* Sleep duration of each day (in hours)
+
+
 
 ## ToDo
 - [ ] Export visualization as PDF

@@ -19,7 +19,7 @@ class VISUALIZE():
         (fig, ax) = plt.subplots(2, 2, constrained_layout=True)
         (fig2,ax2) = plt.subplots(1, 2, constrained_layout=True)
         (fig3,ax3) = plt.subplots(1, 1, constrained_layout=True)
-        fig.suptitle("")
+        fig.suptitle("Wet bed, Average sleep duration & Wake-up-mood")
         fig2.suptitle("Bedtime & Wake-Up-Time (hours:minutes)")
         fig3.suptitle("Sleep duration of each day (in hours)")
         fig.set_figwidth(13)
