@@ -238,7 +238,7 @@ class VISUALIZE():
             notes:list = data[date]['notes'].split(self.note_seperator)
             for note in notes:
                 note:str = note.strip().lower()
-                if note not in all_notes:
+                if note not in all_notes and note != "" and note != " ":
                     all_notes.append(note)
         return all_notes
 
@@ -247,28 +247,32 @@ class VISUALIZE():
         (months,years) = self.get_months_and_years(days = data) # years are here unnecessary
         all_notes:list[str] = self.get_all_notes(data = data)
         note_dict:dict = {}
-        for note in all_notes:
-            note_dict[note] = [0 for i in range(0,len(months))]
-        for date in data:
-            month:int = int(date.split('-')[1])
-            day_notes:list[str] = data[date]['notes'].split(self.note_seperator)
-            for note in day_notes:
-                note = note.strip().lower()
-                note_dict[note][months.index(month)] += 1
-        months = [self.month_names[month-1] for month in months]
-        self.ax[0][0].stackplot(months,note_dict.values(),labels = all_notes, alpha = 0.8)
-        self.ax[0][0].legend(loc = "best")
-        self.ax[0][0].set_xlabel("Months")
-        self.ax[0][0].set_ylabel("Quantities")
-        self.ax[0][0].grid(color = 'gray', alpha = 0.9, linestyle = '--', linewidth = 0.6)
-        self.ax[0][0].set_title("Notes before bedtime (months)")
-        tree = Tree("Notes Overview")
-        for month in months:
-            mo = tree.add(f"[yellow]{month}")
-            for note in note_dict:
-                no = mo.add(f"[green]{note}")
-                no.add(f"[cyan]{str(note_dict[note][months.index(month)])}")
-        pr(tree), print("\n")
+        if len(all_notes) > 0:
+            for note in all_notes:
+                note_dict[note] = [0 for i in range(0,len(months))]
+            for date in data:
+                month:int = int(date.split('-')[1])
+                day_notes:list[str] = data[date]['notes'].split(self.note_seperator)
+                for note in day_notes:
+                    note = note.strip().lower()
+                    if note != "" and note != '' and note != ' ':
+                        note_dict[note][months.index(month)] += 1
+            months = [self.month_names[month-1] for month in months]
+            self.ax[0][0].stackplot(months,note_dict.values(),labels = all_notes, alpha = 0.8)
+            self.ax[0][0].legend(loc = "best")
+            self.ax[0][0].set_xlabel("Months")
+            self.ax[0][0].set_ylabel("Quantities")
+            self.ax[0][0].grid(color = 'gray', alpha = 0.9, linestyle = '--', linewidth = 0.6)
+            self.ax[0][0].set_title("Notes before bedtime (months)")
+            tree = Tree("Notes Overview")
+            for month in months:
+                mo = tree.add(f"[yellow]{month}")
+                for note in note_dict:
+                    no = mo.add(f"[green]{note}")
+                    no.add(f"[cyan]{str(note_dict[note][months.index(month)])}")
+            pr(tree), print("\n")
+        else:
+            self.console.log(f"[red]There're no notes!")
 
     def build_monthly_wet_bed_graph(self,data:dict) -> None:
         ### Number of wet beds (months)
