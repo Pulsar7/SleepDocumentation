@@ -2,7 +2,7 @@
 [![Release](https://img.shields.io/github/release/dmhendricks/file-icon-vectors.svg?style=flat-square)](https://github.com/Pulsar7/SleepDocumentation/releases)
 [![Twitter](https://img.shields.io/twitter/url/https/github.com/dmhendricks/file-icon-vectors.svg?style=social)](https://twitter.com/SevenPulsar)
 
-# Schlafdokumentation
+# SleepDocumentation
 A precise overview of your own sleep and possible influences on sleeping behavior. 
 **But**: This is not a scientific proven script. It only shows you some variables, that could have influence on your sleep behavior. It does not replace any doctor! The science behind our sleep behaviour is much more complicated than this script is able to compute.
 
