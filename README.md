@@ -2,19 +2,23 @@
 [![Release](https://img.shields.io/github/release/dmhendricks/file-icon-vectors.svg?style=flat-square)](https://github.com/Pulsar7/SleepDocumentation/releases)
 [![Twitter](https://img.shields.io/twitter/url/https/github.com/dmhendricks/file-icon-vectors.svg?style=social)](https://twitter.com/SevenPulsar)
 
-# SleepDocumentation
+<div style="text-align: center;">
+    <h1>SleepDocumentation</h1>
+</div>
 A precise overview of your own sleep and possible influences on sleeping behavior. 
 **But**: This is not a scientific proven script. It only shows you some variables, that could have influence on your sleep behavior. It does not replace any doctor! The science behind our sleep behaviour is much more complicated than this script is able to compute.
 
 ## :pushpin: Table of contents
 
-* :point_right: [Installation](#installation)
-* :point_right: [Usage](#usage)
-* :point_right: [Import data](#import-data)
-* :point_right: [Overview](#overview)
-* :point_right: [Enuresis nocturna](#enuresis-nocturna)
-* :point_right: [ToDo](#ToDo)
-* :point_right: [Suggestions & Reports](#suggestions--reports)
+<ul style="list-style-type: none;">
+    <li>:point_right: [Installation](#installation)</li>
+    <li>:point_right: [Usage](#usage)</li>
+    <li>:point_right: [Import data](#import-data)</li>
+    <li>:point_right: [Overview](#overview)</li>
+    <li>:point_right: [Enuresis nocturna]</li>(#enuresis-nocturna)</li>
+    <li>:point_right: [ToDo](#ToDo)</li>
+    <li>:point_right: [Suggestions & Reports](#suggestions--reports)</li>
+</ul>
 
 ## Installation
 
