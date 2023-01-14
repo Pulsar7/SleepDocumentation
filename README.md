@@ -1,5 +1,5 @@
 [![Author](https://img.shields.io/badge/author-Pulsar7-lightgrey.svg?colorB=9900cc&style=flat-square)](https://github.com/Pulsar7)
-[![Release](https://img.shields.io/github/release/dmhendricks/file-icon-vectors.svg?style=flat-square)](https://github.com/Pulsar7/Schlafdokumentation/releases)
+[![Release](https://img.shields.io/github/release/dmhendricks/file-icon-vectors.svg?style=flat-square)](https://github.com/Pulsar7/SleepDocumentation/releases)
 [![Twitter](https://img.shields.io/twitter/url/https/github.com/dmhendricks/file-icon-vectors.svg?style=social)](https://twitter.com/SevenPulsar)
 
 # Schlafdokumentation
@@ -21,7 +21,7 @@ A precise overview of your own sleep and possible influences on sleeping behavio
 :small_orange_diamond: **Download the repository from github with git and go to directory**
  
     sudo apt-get install git
-    git clone https://github.com/Pulsar7/Schlafdokumentation.git
+    git clone https://github.com/Pulsar7/SleepDocumentation.git
     cd Schlafdokumentation
 
 :small_orange_diamond: **Create virtual environment & install requirements**
@@ -128,4 +128,4 @@ In order to consequently offer help to this group of people as well, 'wet_bed' w
 
 ## Suggestions & Reports
 
-Suggestions or errors are welcome to be [:link: reported](https://github.com/Pulsar7/Schlafdokumentation/issues)!
+Suggestions or errors are welcome to be [:link: reported](https://github.com/Pulsar7/SleepDocumentation/issues)!
