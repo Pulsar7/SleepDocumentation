@@ -10,15 +10,13 @@ A precise overview of your own sleep and possible influences on sleeping behavio
 
 ## :pushpin: Table of contents
 
-<ul style="list-style-type: none;">
-    <li>:point_right: [Installation](#installation)</li>
-    <li>:point_right: [Usage](#usage)</li>
-    <li>:point_right: [Import data](#import-data)</li>
-    <li>:point_right: [Overview](#overview)</li>
-    <li>:point_right: [Enuresis nocturna]</li>(#enuresis-nocturna)</li>
-    <li>:point_right: [ToDo](#ToDo)</li>
-    <li>:point_right: [Suggestions & Reports](#suggestions--reports)</li>
-</ul>
+* :point_right: [Installation](#installation)
+* :point_right: [Usage](#usage)
+* :point_right: [Import data](#import-data)
+* :point_right: [Overview](#overview)
+* :point_right: [Enuresis nocturna](#enuresis-nocturna)
+* :point_right: [ToDo](#ToDo)
+* :point_right: [Suggestions & Reports](#suggestions--reports)
 
 ## Installation
 
