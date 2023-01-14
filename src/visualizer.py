@@ -362,8 +362,10 @@ class VISUALIZE():
         state:bool = True
         year:str = self.console.input(f"[yellow]Enter year>[purple] ")
         month:str = self.console.input(f"[yellow]Enter month (number)>[purple] ")
+        if len(month) == 1:
+            month = f"0{month}"
         sleep_goal:str = self.console.input(f"[yellow]Enter sleep goal - in hours (0 if not)>[purple] ")
-        wet_bed_graph_state:str = self.console.input(f"[yellow]Show 'wet-bed' graph? (YES or NO)>[purple] ")
+        wet_bed_graph_state:str = self.console.input(f"[yellow]Show 'wet-bed' graph? (YES or NO) - default: [cyan]YES[yellow]>[purple] ")
         if sleep_goal == "0":
             sleep_goal = False
         else:
@@ -402,10 +404,12 @@ class VISUALIZE():
                     wet_bed_graph_state:str = wet_bed_graph_state.strip().lower()
                     args:list[str] = list(data.keys())[0].split("-")
                     month_and_year:str = "-"+args[1]+"-"+args[2]
-                    sorted_dates:list[str] = sorted([int(date.split("-")[0]) for date in data.keys()])
+                    sorted_dates:list[str] = sorted([date.split("-")[0] for date in data.keys()])
                     sorted_data:dict = {}
                     for date in sorted_dates:
-                        date:str = str(date)+month_and_year
+                        if len(date) == 1:
+                            date = f"0{date}"
+                        date:str = date+month_and_year
                         sorted_data[date] = data[date]
                     data = sorted_data
                     self.create_figures()

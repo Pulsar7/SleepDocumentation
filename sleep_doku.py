@@ -149,12 +149,12 @@ class Visualization():
                             set_commands:list[str] = []
                             while (set_command_state == True and error_counter <= max_errors):
                                 set_command:str = str(self.console.input("[yellow]>[purple] ")).lower()
+                                valid_command_state:bool = True
                                 if "set" in set_command and "=" in set_command:
                                     key_element = set_command.split(" ")[1]
                                     if key_element in keys:
                                         new_value:str = set_command.split("=")[1]
                                         value:str = new_value.strip()
-                                        set_commands.append({key_element:new_value})
                                         if key_element == "bedtime" or key_element == "wake_up_time":
                                             time_value:str = value
                                             (state,msg) = self.check_time_format(raw_time = time_value)
@@ -172,10 +172,18 @@ class Visualization():
                                             else:
                                                 self.console.log(f"[red]{msg}")
                                                 error_counter += 1
+                                        elif key_element == "wet_bed":
+                                            if value.lower() != "no" and value.lower() != "yes":
+                                                self.console.log(f"[red]'{value}' is not a valid option for a wet-bed-state!")
+                                                valid_command_state = False
+                                            else:
+                                                value = value.upper()
+                                        if valid_command_state == True:
+                                            set_commands.append({key_element:value})
                                     else:
                                         self.console.log(f"[red]'{set_command}' is not a valid set-command!")
                                         error_counter += 1
-                                elif set_command == "end":
+                                elif set_command.lower() == "end":
                                     break
                             if len(set_commands) > 0:
                                 state = self.db.edit_sleep_entry(new_values = set_commands, date = date)
