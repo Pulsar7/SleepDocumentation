@@ -166,8 +166,55 @@ class VISUALIZE():
                 hours += 1
         return (hours,minutes)
 
+    def build_weekly_wake_up_mood_bar_graph(self,data:dict) -> None:
+        ### Weekly wake-up-mood
+        wake_up_moods:dict = {'weeks':[], 'good':[], 'bad':[], 'perfect':[]}
+        day_counter:int = 1
+        week_counter:int = 1
+        for day in data: # idea with 'enumerate()'
+            wake_up_mood:str = data[day]['wake_up_mood'].lower()
+            this_week = f"Week {week_counter}"
+            if this_week not in wake_up_moods['weeks']:
+                wake_up_moods['weeks'].append(this_week)
+                for mood in wake_up_moods:
+                    if mood != "weeks":
+                        if wake_up_mood != mood:
+                            wake_up_moods[mood].append(0)
+                        else:
+                            wake_up_moods[mood].append(1)
+            else:
+                wake_up_moods[wake_up_mood][wake_up_moods['weeks'].index(this_week)] += 1
+            if day_counter == 7:
+                day_counter = 0
+                week_counter += 1
+            else:
+                day_counter += 1
+        width = 0.35
+        weeks:list[str] = wake_up_moods['weeks']
+        p = np.array(wake_up_moods['perfect'])
+        g = np.array(wake_up_moods['good'])
+        b = np.array(wake_up_moods['bad'])
+        bar1 = self.ax[1][0].bar(weeks,p,width, color='limegreen', align='center',
+            edgecolor='white', label="Perfect mood")
+        bar2 = self.ax[1][0].bar(weeks,g,width, color='orange', edgecolor='white', align='center',
+            label="Good mood", bottom = p)
+        bar3 = self.ax[1][0].bar(weeks,b,width, color='red', align='center',
+            label="Bad mood", bottom = p+g, edgecolor='white')
+        self.ax[1][0].legend(loc='best')
+        self.ax[1][0].set_title("Wake up mood (Weeks)")
+        for r1, r2, r3 in zip(bar1,bar2,bar3):
+            h1 = r1.get_height()
+            h2 = r2.get_height()
+            h3 = r3.get_height()
+            self.ax[1][0].text(r1.get_x() + r1.get_width() / 2., h1 / 2., "%d" % h1, ha="center", 
+                va="center", color="white", fontsize=13, fontweight="bold")
+            self.ax[1][0].text(r2.get_x() + r2.get_width() / 2., h1 + h2 / 2., "%d" % h2, ha="center", 
+                va="center", color="white", fontsize=13, fontweight="bold")
+            self.ax[1][0].text(r3.get_x() + r3.get_width() / 2., h1 + h2 + h3 / 2., "%d" % h3, ha="center", 
+                va="center", color="white", fontsize=13, fontweight="bold")
+
     def build_monthly_wake_up_mood_bar_graph(self,data:dict) -> None:
-        ### Monthly wake-up-mood - of every day
+        ### Monthly wake-up-mood
         wake_up_moods:dict = {'months':[], 'good':[], 'bad':[], 'perfect':[]}
         for day in data: # idea with 'enumerate()'
             month:str = int(day.split("-")[1])
@@ -413,6 +460,7 @@ class VISUALIZE():
                         sorted_data[date] = data[date]
                     data = sorted_data
                     self.create_figures()
+                    self.build_weekly_wake_up_mood_bar_graph(data = data) # fig1
                     self.build_bedtime_and_wake_up_time_pies(data = data) # fig2
                     (sleep_durations,average_sleep_dur,days) = self.build_sleep_duration_days(data = data, 
                         sleep_goal = sleep_goal) # fig3
