@@ -25,7 +25,7 @@ A precise overview of your own sleep and possible influences on sleeping behavio
  
     sudo apt-get install git
     git clone https://github.com/Pulsar7/SleepDocumentation.git
-    cd Schlafdokumentation
+    cd SleepDocumentation
 
 :small_orange_diamond: **Create virtual environment & install requirements**
 
