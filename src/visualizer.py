@@ -169,7 +169,7 @@ class VISUALIZE():
     def build_weekly_wake_up_mood_bar_graph(self,data:dict) -> None:
         ### Weekly wake-up-mood
         wake_up_moods:dict = {'weeks':[], 'good':[], 'bad':[], 'perfect':[]}
-        day_counter:int = 1
+        day_counter:int = 0
         week_counter:int = 1
         for day in data: # idea with 'enumerate()'
             wake_up_mood:str = data[day]['wake_up_mood'].lower()
@@ -184,11 +184,10 @@ class VISUALIZE():
                             wake_up_moods[mood].append(1)
             else:
                 wake_up_moods[wake_up_mood][wake_up_moods['weeks'].index(this_week)] += 1
+            day_counter += 1
             if day_counter == 7:
                 day_counter = 0
                 week_counter += 1
-            else:
-                day_counter += 1
         width = 0.35
         weeks:list[str] = wake_up_moods['weeks']
         p = np.array(wake_up_moods['perfect'])
@@ -252,6 +251,37 @@ class VISUALIZE():
             self.ax[1][0].text(r3.get_x() + r3.get_width() / 2., h1 + h2 + h3 / 2., "%d" % h3, ha="center", 
                 va="center", color="white", fontsize=13, fontweight="bold")
 
+    def build_weekly_average_sleep_duration(self,data:dict) -> None:
+        ### Average sleep duration - of every week (in hours)
+        graph_data:dict = {}
+        average_sleep_durations:list[float] = []
+        week:int = 1
+        day_counter:int = 0
+        for day in data:
+            if week not in graph_data.keys():
+                graph_data[week] = []
+            graph_data[week].append(data[day]['sleep_duration'])
+            day_counter += 1
+            if day_counter == 7:
+                week += 1
+                day_counter = 0
+        weeks = graph_data.keys()
+        for week in graph_data:
+            average_dur:float = 0
+            for t in graph_data[week]:
+                average_dur += t
+            average_sleep_durations.append(average_dur/len(graph_data[week]))
+        weeks = [f"Week {week}" for week in graph_data.keys()]
+        self.ax[0][1].plot(weeks,average_sleep_durations,linewidth = 1.5,color="royalblue",linestyle = "-",
+            label = "Average sleep duration (in hours) per week",marker = "o"
+        )
+        self.ax[0][1].fill_between(weeks, average_sleep_durations, alpha=0.3,color="royalblue")
+        self.ax[0][1].set_title("Average sleep duration (in hours) per week")
+        self.ax[0][1].legend(loc='best')
+        self.ax[0][1].grid(True)
+        self.ax[0][1].set_xticks(np.arange(0, len(weeks), 1))
+        self.ax[0][1].set_yticks(np.arange(0, max(average_sleep_durations)+0.5, 0.5))
+
     def build_monthly_average_sleep_duration(self,data:dict) -> None:
         ### Average sleep duration - of every month (in hours)
         graph_data:dict = {}
@@ -288,6 +318,50 @@ class VISUALIZE():
                 if note not in all_notes and note != "" and note != " ":
                     all_notes.append(note)
         return all_notes
+
+    def build_weekly_notes_graph(self,data:dict) -> None:
+        ### Notes before bedtime (weeks)
+        all_notes:list[str] = self.get_all_notes(data = data)
+        weeks:dict = {}
+        week:int = 1
+        day_counter:int = 0
+        for day in data:
+            this_week = f"Week {week}"
+            if this_week not in weeks:
+                weeks[this_week] = []
+            weeks[this_week].append(day)
+            day_counter += 1
+            if day_counter == 7:
+                week += 1
+                day_counter = 0
+        note_dict:dict = {}
+        if len(all_notes) > 0:
+            for note in all_notes:
+                note_dict[note] = [0 for i in range(0,len(list(weeks.keys())))]
+            for date in data:
+                day_notes:list[str] = data[date]['notes'].split(self.note_seperator)
+                week = next((week for week in weeks if date in weeks[week]), None)
+                for note in day_notes:
+                    note = note.strip().lower()
+                    if note != "" and note != '' and note != ' ':
+                        if week not in note_dict[note]:
+                            note_dict[note][list(weeks.keys()).index(week)] = 0
+                        note_dict[note][list(weeks.keys()).index(week)] += 1
+            self.ax[0][0].stackplot(list(weeks.keys()),note_dict.values(),labels = all_notes, alpha = 0.8)
+            self.ax[0][0].legend(loc = "best")
+            self.ax[0][0].set_xlabel("Weeks")
+            self.ax[0][0].set_ylabel("Quantities")
+            self.ax[0][0].grid(color = 'gray', alpha = 0.9, linestyle = '--', linewidth = 0.6)
+            self.ax[0][0].set_title("Notes before bedtime (weeks)")
+            tree = Tree("Notes Overview")
+            for week in weeks:
+                we = tree.add(f"[yellow]{week}")
+                for note in note_dict:
+                    no = we.add(f"[green]{note}")
+                    no.add(f"[cyan]{str(note_dict[note][list(weeks.keys()).index(week)])}")
+            pr(tree), print("\n")
+        else:
+            self.console.log(f"[red]There're no notes!")
 
     def build_monthly_notes_graph(self,data:dict) -> None:
         ### Notes before bedtime (months)
@@ -460,7 +534,9 @@ class VISUALIZE():
                         sorted_data[date] = data[date]
                     data = sorted_data
                     self.create_figures()
+                    self.build_weekly_average_sleep_duration(data = data) # fig1
                     self.build_weekly_wake_up_mood_bar_graph(data = data) # fig1
+                    self.build_weekly_notes_graph(data = data) # fig1
                     self.build_bedtime_and_wake_up_time_pies(data = data) # fig2
                     (sleep_durations,average_sleep_dur,days) = self.build_sleep_duration_days(data = data, 
                         sleep_goal = sleep_goal) # fig3

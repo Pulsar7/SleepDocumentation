@@ -95,12 +95,15 @@ class Database():
                 data[year] = {}
             if month not in data[year].keys():
                 data[year][month] = []
-            data[year][month].append(day)
+            data[year][month].append(int(day))
         sorted_years:list = sorted(data.keys())
         for year in sorted_years:
             for month in data[year]:
                 data[year][month] = sorted(data[year][month])
                 for day in data[year][month]:
+                    day = str(day)
+                    if len(day) == 1:
+                        day = f"0{day}"
                     sorted_dates.append(f"{day}-{month}-{year}")
         for x, row in enumerate(rows, 0):
             elements:list = [row[i] for i in range(1,len(row))]
