@@ -82,33 +82,49 @@ class Database():
     ### GET ELEMENT
 
     def sort_date_data(self,dates:list[str],rows:list) -> list[str]:
-        sorted_dates:list[str] = []
         sorted_rows:list = []
-        data:dict = {}
-        years:list = []
-        for date in dates:
-            args:list = date.split("-")
-            year:str = args[2]
-            month:str = args[1]
-            day:str = args[0]
-            if year not in data.keys():
-                data[year] = {}
-            if month not in data[year].keys():
-                data[year][month] = []
-            data[year][month].append(int(day))
-        sorted_years:list = sorted(data.keys())
+        all_data:dict = {}
+        all_sorted_data:dict = {}
+        sorted_dates:list = []
+        for row in rows:
+            date_args:list = row[0].split("-")
+            day:int = int(date_args[0])
+            month:int = int(date_args[1])
+            year:int = int(date_args[2])
+            if year not in all_data.keys():
+                all_data[year] = {}
+            if month not in all_data[year].keys():
+                all_data[year][month] = []
+            all_data[year][month].append(day)
+        sorted_years:list = sorted(list(all_data.keys()))
         for year in sorted_years:
-            for month in data[year]:
-                data[year][month] = sorted(data[year][month])
-                for day in data[year][month]:
-                    day = str(day)
+            all_sorted_data[year] = {}
+            sorted_months:list = sorted(list(all_data[year].keys()))
+            for month in sorted_months:
+                all_sorted_data[year][month] = sorted(all_data[year][month]) # sort all days in a month
+        for year in all_sorted_data:
+            for month in all_sorted_data[year]:
+                for day in all_sorted_data[year][month]:
+                    (day,month) = (str(day),str(month))
                     if len(day) == 1:
                         day = f"0{day}"
+                    if len(month) == 1:
+                        month = f"0{month}"
                     sorted_dates.append(f"{day}-{month}-{year}")
-        for x, row in enumerate(rows, 0):
-            elements:list = [row[i] for i in range(1,len(row))]
-            elements.insert(0,sorted_dates[x])
-            sorted_rows.append(elements)
+        for date in sorted_dates:
+            this_date_args:list = date.split("-")
+            this_day:int = int(this_date_args[0])
+            this_month:int = int(this_date_args[1])
+            this_year:int = int(this_date_args[2])
+            for row in rows:
+                date_args:list = row[0].split("-")
+                day:int = int(date_args[0])
+                month:int = int(date_args[1])
+                year:int = int(date_args[2])
+                if this_day == day and this_month == month and this_year == year:
+                    elements:list = [element for element in row if element != row[0]]
+                    elements.insert(0,date)
+                    sorted_rows.append(elements)
         return sorted_rows
 
     def get_all_entries(self) -> list or str:

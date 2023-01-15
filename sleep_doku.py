@@ -131,7 +131,7 @@ class Visualization():
             if "-" in date:
                 args:list[str] = date.split("-")
                 if len(args) == 3:
-                    rows:str = self.db.get_day(date = date)
+                    rows:str = self.db.get_day(date = self.to_date_format(date))
                     if type(rows) == list:
                         if len(rows) > 0:
                             set_command_state:bool = True
@@ -206,6 +206,15 @@ class Visualization():
         if error_counter == max_errors:
             self.console.log(f"[red]Couldn't edit sleep-entry of '{date}':[bold red] Too many errors!")
 
+    def to_date_format(self,date:str):
+        args:list[str] = date.split("-")
+        (day,month,year) = (str(args[0]),str(args[1]),str(args[2]))
+        if len(day) == 1:
+            day = f"0{day}"
+        if len(month) == 1:
+            month = f"0{month}"
+        return f"{day}-{month}-{year}"
+
     def get(self) -> None:
         self.console.rule()
         error_counter:int = 0
@@ -216,7 +225,7 @@ class Visualization():
             if "-" in date:
                 args:list[str] = date.split("-")
                 if len(args) == 3:
-                    rows:str = self.db.get_day(date = date)
+                    rows:str = self.db.get_day(date = self.to_date_format(date))
                     if type(rows) == list:
                         if len(rows) > 0:
                             data = rows[0]
@@ -247,6 +256,7 @@ class Visualization():
             if "-" in date:
                 args:list[str] = date.split("-")
                 if len(args) == 3:
+                    date = self.to_date_format(date)
                     rows:str = self.db.get_day(date = date)
                     if type(rows) == list:
                         if len(rows) > 0:

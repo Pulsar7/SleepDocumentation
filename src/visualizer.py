@@ -12,7 +12,7 @@ from rich import print as pr
 class VISUALIZE():
     def __init__(self,console,db,tables,note_seperator:str) -> None:
         (self.console,self.db, self.tables) = (console,db,tables)
-        self.month_names = ["Jan","Feb","Mar","Apr","Mai","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+        self.month_names = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
         self.note_seperator:str = note_seperator
 
     def create_figures(self) -> None:
@@ -485,6 +485,8 @@ class VISUALIZE():
         month:str = self.console.input(f"[yellow]Enter month (number)>[purple] ")
         if len(month) == 1:
             month = f"0{month}"
+        elif len(month) > 2:
+            raise Exception(f"Not a valid month! ('{month}')")
         sleep_goal:str = self.console.input(f"[yellow]Enter sleep goal - in hours (0 if not)>[purple] ")
         wet_bed_graph_state:str = self.console.input(f"[yellow]Show 'wet-bed' graph? (YES or NO) - default: [cyan]YES[yellow]>[purple] ")
         if sleep_goal == "0":
