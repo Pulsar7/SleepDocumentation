@@ -85,6 +85,7 @@ class Database():
         sorted_dates:list[str] = []
         sorted_rows:list = []
         data:dict = {}
+        years:list = []
         for date in dates:
             args:list = date.split("-")
             year:str = args[2]
@@ -95,7 +96,8 @@ class Database():
             if month not in data[year].keys():
                 data[year][month] = []
             data[year][month].append(day)
-        for year in data:
+        sorted_years:list = sorted(data.keys())
+        for year in sorted_years:
             for month in data[year]:
                 data[year][month] = sorted(data[year][month])
                 for day in data[year][month]:
