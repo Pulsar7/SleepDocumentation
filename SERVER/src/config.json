@@ -1,0 +1,37 @@
+{
+    "general": {
+        "timezone": "CET",
+        "max_errors": 10
+    },
+
+    "socket": {
+        "default_server_ip": "0.0.0.0",
+        "default_server_port": 1337,
+        "max_incoming_connections": 10,
+        "buffer_size": 2048,
+        "exit_command": "exit",
+        "buffer_start_keyword": "#BEGIN-BUFFERING#",
+        "buffer_stop_keyword": "#END-BUFFERING#",
+        "max_message_len": 100
+    },
+
+    "database": {
+        "default_db_path": "src/dbs/Database.db",
+        "tables": {
+            "SleepData": {
+                "values": ["entry_id TEXT","date TEXT","bedtime TEXT","wake_up_time TEXT","wake_up_mood","notes TEXT",
+                    "wet_bed TEXT","at_home TEXT"
+                ],
+                "entry_id_len": 35
+            },
+            "Blacklist": {
+                "values": ["ip TEXT","reason TEXT"]
+            }
+        }
+    },
+
+    "encryption": {
+        "user_pwd": "7ad3e07683339070b15b874de5bc48d5a2386c476831919086902f53f0dce923",
+        "rsa_key_size": 3072
+    }
+}
