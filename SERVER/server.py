@@ -3,7 +3,7 @@
 # by Benedikt Fichtner
 # Python 3.10.6
 #
-import os,sys,argparse,socket,threading,pytz,time,string
+import os,sys,argparse,socket,threading,pytz,time,string,datetime as dt
 from rich import (pretty,console as cons)
 from colorama import (init,Fore)
 from datetime import datetime
@@ -14,6 +14,22 @@ from src import (config,encryption,database)
 class SLEEPDOCU():
     def __init__(self) -> None:
         pass
+    
+    def calculate_sleepduration(self,bedtime:str,wake_up_time:str) -> str:
+        start = datetime.strptime(bedtime, "%H:%M") # :%S - for seconds
+        end = datetime.strptime(wake_up_time, "%H:%M") # :%S - for seconds
+        delta = end - start
+        if delta.days == -1: # The sleep ends on the next day
+            now = datetime.now()
+            bedtime = f"{now.year}/{now.month}/{now.day} "+ bedtime
+            next_day = dt.today() + dt.timedelta(days=1)
+            wake_up_time = f"{next_day.year}/{next_day.month}/{next_day.day} "+wake_up_time
+            this_bedtime = dt.strptime(bedtime, "%Y/%m/%d %H:%M")
+            this_wake_up_time = dt.strptime(wake_up_time, "%Y/%m/%d %H:%M")
+            delta = this_wake_up_time-this_bedtime
+        delta = str(delta)
+        return delta
+
 
 
 class SERVER(SLEEPDOCU):
@@ -60,6 +76,18 @@ class SERVER(SLEEPDOCU):
                 "help": "Deletes a sleep-docu-entry",
                 "args": {
                     "-id=": "Just enter the entry-id"
+                }
+            },
+            'show-sleepentries-of-year': {
+                "help": "Shows all sleep-entries of a specific year",
+                "args": {
+                    "-year=": "Enter the year of which you want to see all sleep-entries"
+                }
+            },
+            'show-sleepentry': {
+                "help": "Shows a specific sleep-entry",
+                "args": {
+                    "-date=": "Enter the date of the sleep-entry"
                 }
             },
             'add-blacklist': {
@@ -130,10 +158,74 @@ class SERVER(SLEEPDOCU):
         del elements_client_args
         return (state,client_args)
     
+    def show_sleepentry(self,b:str,client_socket:socket.socket,client_msg:str) -> None:
+        (state,client_args) = self.get_args_from_msg(msg = client_msg, arg_name = "show-sleepentry")
+        if state == True:
+            state:bool = self.check_date_format(date = client_args['date'])
+            if state == True:
+                response:str = ""
+                rows:list or str = self.db.get_sleepentry(date = client_args['date'])
+                if type(rows) == list:
+                    if len(rows) > 0:
+                        table_elements:list[str] = self.db.tables[self.db.sleep_data_table_name]['values']
+                        for x,element in enumerate(rows):
+                            response += Fore.LIGHTMAGENTA_EX+"- "+Fore.WHITE+"("+Fore.YELLOW+str(x+1)+Fore.WHITE+")"+Fore.RESET+f" {element[0]}\n"+"".join([Fore.CYAN+"    - "+Fore.RESET+table_elements[e].split(" ")[0]+": "+element[e]+"\n" for e in range(1,len(element))])
+                        del table_elements
+                        
+                    else:
+                        response = Fore.LIGHTRED_EX+f"There is no sleep-data for date '{client_args['date']}' in the database"
+                else:
+                    response = Fore.LIGHTRED_EX+f"Couldn't get sleep-entry-data for date '{client_args['date']}': {rows}"
+            else:
+                response = Fore.LIGHTRED_EX+f"Invalid date-format: '{client_args['date']}'"
+        else:
+            response = Fore.LIGHTRED_EX+"Invalid arguments for 'show-sleepentry'-command."
+        if "\x1b[91" in response:
+            print(self.get_now()+self.warning.strip()+b+response)
+        else:
+            print(self.get_now()+self.info.strip()+b+f"Show sleepentry of date {client_args['date']}")
+        state = self.send(client_socket = client_socket, msg = response)
+        if type(state) != bool:
+            print(self.get_now()+self.error.strip()+b+f"Couldn't send a response to the client: {state}")
+        del response, client_args
+            
+    def show_sleepentries_of_year(self,b:str,client_socket:socket.socket,client_msg:str) -> None:
+        (state,client_args) = self.get_args_from_msg(msg = client_msg, arg_name = "show-sleepentries-of-year")
+        if state == True:
+            for str_el in string.ascii_letters:
+                if str_el in client_args['year']:
+                    state = False
+                    break
+            if state == True:
+                response:str = ""
+                sleep_data = self.db.get_all_sleepdata_of_year(year = client_args['year'])
+                if type(sleep_data) == list:
+                    if len(sleep_data) > 0:
+                        table_elements:list[str] = self.db.tables[self.db.sleep_data_table_name]['values']
+                        for x,element in enumerate(sleep_data):
+                            response += Fore.LIGHTMAGENTA_EX+"- "+Fore.WHITE+"("+Fore.YELLOW+str(x+1)+Fore.WHITE+")"+Fore.RESET+f" {element[0]}\n"+"".join([Fore.CYAN+"  - "+Fore.RESET+table_elements[e].split(" ")[0]+": "+element[e]+"\n" for e in range(1,len(element)-1)])
+                        del table_elements
+                    else:
+                        response = Fore.LIGHTRED_EX+"There is no sleep-data for the year "+client_args['year']+" saved in the database"
+                else:
+                    response = Fore.LIGHTRED_EX+f"Couldn't get all sleep-entries for the year '{client_args['year']}' from database: {sleep_data}"
+            else:
+                response = Fore.LIGHTRED_EX+f"Invalid year: '{client_args['year']}'"
+        else:
+            response = Fore.LIGHTRED_EX+"Invalid arguments for 'show-sleepentries-of-year'-command."
+        if "\x1b[91" in response:
+            print(self.get_now()+self.warning.strip()+b+response)
+        else:
+            print(self.get_now()+self.info.strip()+b+f"Show sleepentries of year {client_args['year']}")
+        state = self.send(client_socket = client_socket, msg = response)
+        if type(state) != bool:
+            print(self.get_now()+self.error.strip()+b+f"Couldn't send a response to the client: {state}")
+        del response, client_args
+    
     def delete_sleepentry(self,b:str,client_socket:socket.socket,client_msg:str) -> None:
         (state,client_args) = self.get_args_from_msg(msg = client_msg, arg_name = "delete-sleepentry")
         if state == True:
-            if len(client_args['id'] == self.conf.get("database","tables","SleepData","entry_id_len")):
+            if len(client_args['id']) == self.conf.get("database","tables","SleepData","entry_id_len"):
                 (state,response) = self.db.delete_sleepentry(entry_id = client_args['id'])
                 if state == True:
                     response = f"Deleted sleep-entry with id {client_args['id']} from database"
@@ -142,7 +234,7 @@ class SERVER(SLEEPDOCU):
             else:
                 response = Fore.LIGHTRED_EX+f"Invalid sleep-entry-id: '{client_args['id']}'"
         else:
-            response = f"Invalid arguments for 'delete-sleepentry'-command. | {', '.join([self.commands['delete-sleepentry']['args'][h] for h in self.commands['delete-sleepentry']['args']])}"
+            response = Fore.LIGHTRED_EX+f"Invalid arguments for 'delete-sleepentry'-command."
         print(self.get_now()+self.info.strip()+b+response)
         state = self.send(client_socket = client_socket, msg = response)
         if type(state) != bool:
@@ -165,7 +257,7 @@ class SERVER(SLEEPDOCU):
             else:
                 response = Fore.LIGHTRED_EX+f"Invalid IP-Address: '{client_args['ip']}'"
         else:
-            response = f"Invalid arguments for 'delete-blacklisted'-command. | {', '.join([self.commands['delete-blacklisted']['args'][h] for h in self.commands['delete-blacklisted']['args']])}"
+            response = Fore.LIGHTRED_EX+f"Invalid arguments for 'delete-blacklisted'-command."
         print(self.get_now()+self.info.strip()+b+response)
         state = self.send(client_socket = client_socket, msg = response)
         if type(state) != bool:
@@ -176,9 +268,16 @@ class SERVER(SLEEPDOCU):
         response:str = ""
         blacklist_entries = self.db.get_all_blacklist_entries()
         if type(blacklist_entries) == list:
-            response = "".join([f"- IP = {entry[0]} -> Reason: {entry[1]}\n" for entry in blacklist_entries])
+            if len(blacklist_entries) > 0:
+                response = "".join([f"- IP = {entry[0]} -> Reason: {entry[1]}\n" for entry in blacklist_entries])
+            else:
+                response = "The blacklist is empty."
         else:
             response = Fore.LIGHTRED_EX+f"Couldn't show all blacklist-entries "+blacklist_entries
+        if "\x1b[91" in response:
+            print(self.get_now()+self.warning.strip()+b+response)
+        else:
+            print(self.get_now()+self.info.strip()+b+f"Show blacklist")
         state = self.send(client_socket = client_socket, msg = response)
         if type(state) != bool:
             print(self.get_now()+self.error.strip()+b+f"Couldn't send a response to the client: {state}")
@@ -201,36 +300,52 @@ class SERVER(SLEEPDOCU):
             else:
                 response = Fore.LIGHTRED_EX+f"Invalid IP-Address: '{client_args['ip']}'"
         else:
-            response = f"Invalid arguments for 'add-blacklist'-command. | {', '.join([self.commands['add-blacklist']['args'][h] for h in self.commands['add-blacklist']['args']])}"
+            response = Fore.LIGHTRED_EX+f"Invalid arguments for 'add-blacklist'-command."
         print(self.get_now()+self.info.strip()+b+response)
         state = self.send(client_socket = client_socket, msg = response)
         if type(state) != bool:
             print(self.get_now()+self.error.strip()+b+f"Couldn't send a response to the client: {state}")
         del response, client_args
         
+    def check_entered_sleepdata(self,client_args:dict) -> tuple((bool,str)):
+        state:bool = self.check_date_format(date = client_args['date'])
+        if state == True:
+            state:bool = self.check_time_format(time = client_args['bedtime'])
+            if state == True:
+                state:bool = self.check_time_format(time = client_args['wake_up_time'])
+                if state == True:
+                    if client_args['at_home'].upper() in ["YES","NO"]:
+                        if client_args['wet_bed'].upper() in ["YES","NO"]:
+                            if client_args['wake_up_mood'].upper() in ["GOOD","BAD","PERFECT"]:
+                                return (True,"")
+                            else:
+                                response = Fore.LIGHTRED_EX+f"Invalid option for 'wake_up_mood': '{client_args['wake_up_mood']}' | Valid options: BAD or GOOD or PERFECT"
+                        else:
+                            response = Fore.LIGHTRED_EX+f"Invalid option for 'wet_bed': '{client_args['wet_bed']}' | Valid options: YES or NO"
+                    else:
+                        response = Fore.LIGHTRED_EX+f"Invalid option for 'at_home': '{client_args['at_home']}' | Valid options: YES or NO"
+                else:
+                    response = Fore.LIGHTRED_EX+f"Invalid time-format for wake_up_time: '{client_args['wake_up_time']}'"
+            else:
+                response = Fore.LIGHTRED_EX+f"Invalid time-format for bedtime: '{client_args['bedtime']}'"
+        else:
+            response = Fore.LIGHTRED_EX+f"Invalid date-format: '{client_args['date']}'"
+        return (False,response)
+        
     def create_sleepentry(self,b:str,client_socket:socket.socket,client_msg:str) -> None:
         response:str = ""
-        (state,client_args) = self.get_args_from_msg(msg = client_msg, arg_name = "create")
+        (state,client_args) = self.get_args_from_msg(msg = client_msg, arg_name = "create-sleepentry")
         if state == True:
-            state:bool = self.check_date_format(date = client_args['date'])
+            (state,response) = self.check_entered_sleepdata(client_args = client_args)
             if state == True:
-                state:bool = self.check_time_format(time = client_args['bedtime'])
+                client_args['sleep_duration'] = self.calculate_sleepduration(bedtime = client_args['bedtime'], wake_up_time = client_args['wake_up_time'])
+                (state,entry_id) = self.db.create_entry(data = client_args)
                 if state == True:
-                    state:bool = self.check_time_format(time = client_args['wake_up_time'])
-                    if state == True:
-                        (state,entry_id) = self.db.create_entry(data = client_args)
-                        if state == True:
-                            response = f"Added entry at date {client_args['date']} with entry-id "+Fore.LIGHTCYAN_EX+f"'{entry_id}'"
-                        else:
-                            response = Fore.LIGHTRED_EX+f"Couldn't add entry: {entry_id}"
-                    else:
-                        response = Fore.LIGHTRED_EX+f"Invalid time-format for wake_up_time: '{client_args['wake_up_time']}'"
+                    response = f"Added entry at date {client_args['date']} with entry-id "+Fore.LIGHTCYAN_EX+f"'{entry_id}'"
                 else:
-                    response = Fore.LIGHTRED_EX+f"Invalid time-format for bedtime: '{client_args['bedtime']}'"
-            else:
-                response = Fore.LIGHTRED_EX+f"Invalid date-format: '{client_args['date']}'"
+                    response = Fore.LIGHTRED_EX+f"Couldn't add entry: {entry_id}"
         else:
-            response = f"Invalid arguments for 'create'-command. | {', '.join([self.commands['create']['args'][h] for h in self.commands['create']['args']])}"
+            response = Fore.LIGHTRED_EX+f"Invalid arguments for 'create-sleepentry'-command."
         print(self.get_now()+self.info.strip()+b+response)
         state = self.send(client_socket = client_socket, msg = response)
         if type(state) != bool:
@@ -281,7 +396,7 @@ class SERVER(SLEEPDOCU):
                     (state,encrypted_msg) = self.encr.encrypt(msg = "".join(frag), public_key = self.PUB_KEYS[client_socket])
                     if state == True:
                         client_socket.send(encrypted_msg)
-                        time.sleep(0.2) ### 
+                        time.sleep(0.1) ### 
                     else:
                         raise Exception(encrypted_msg)
                     if last == True:
@@ -395,7 +510,7 @@ class SERVER(SLEEPDOCU):
     def close_all_connections(self) -> None:
         self.server_up_state = False
         conns:list[str] = [connection for connection in self.PUB_KEYS]
-        print(self.info+f"Closing all {len(list(self.PUB_KEYS.keys()))} connections")
+        print(self.get_now()+self.info+f"Closing all {len(list(self.PUB_KEYS.keys()))} connections")
         for connection in conns:
             sys.stdout.write("\r"+self.get_now()+self.info+"Closing connection to "+Fore.CYAN+f"{connection.getpeername()}"+Fore.RESET+"...")
             sys.stdout.flush()

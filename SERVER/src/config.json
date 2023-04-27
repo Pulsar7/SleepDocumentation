@@ -20,7 +20,7 @@
         "tables": {
             "SleepData": {
                 "values": ["entry_id TEXT","date TEXT","bedtime TEXT","wake_up_time TEXT","wake_up_mood","notes TEXT",
-                    "wet_bed TEXT","at_home TEXT"
+                    "wet_bed TEXT","at_home TEXT","sleep_duration TEXT"
                 ],
                 "entry_id_len": 35
             },

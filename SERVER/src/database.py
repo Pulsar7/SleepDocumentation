@@ -50,7 +50,6 @@ class DATABASE():
                 break
         return generated_id
                 
-    
     def create_entry(self,data:dict) -> tuple((bool,str)):
         rows:list or str = self.get_element(table_name = self.sleep_data_table_name, element_name = 'date', element = data['date'])
         if type(rows) == list:
@@ -62,7 +61,7 @@ class DATABASE():
                         with closing(connection.cursor()) as cursor:
                             cursor.execute(f"INSERT INTO {self.sleep_data_table_name} VALUES({q_marks});", (
                                 data['entry_id'],data['date'],data['bedtime'],data['wake_up_time'],data['wake_up_mood'],
-                                data['notes'],data['wet_bed'],data['at_home']
+                                data['notes'],data['wet_bed'],data['at_home'],data['sleep_duration']
                             ))
                             connection.commit()
                     return (True,data['entry_id'])
@@ -110,6 +109,9 @@ class DATABASE():
             self.console.log(f"[red]Database error")
             return str(error)
         
+    def get_sleepentry(self,date:str) -> list or str:
+        return self.get_element(element = date, element_name = "date", table_name = self.sleep_data_table_name)
+        
     def check_if_entry_id_exists(self,entry_id:str) -> bool:
         rows = self.get_element(element = entry_id, element_name = "entry_id", table_name = self.sleep_data_table_name)
         if type(rows) == list:
@@ -126,6 +128,21 @@ class DATABASE():
                 return (False,"")
         else:
             return (False,rows)
+        
+    def get_all_sleepdata_of_year(self,year:str) -> list or bool:
+        try:
+            with closing(sqlite3.connect(self.db_filepath)) as connection:
+                with closing(connection.cursor()) as cursor:
+                    cursor.execute(f"SELECT * FROM {self.sleep_data_table_name} WHERE date LIKE '%'||?||'%';",(year,))
+                    data_rows = cursor.fetchall()
+                    connection.commit()
+            rows:list = []
+            for row in data_rows:
+                rows.append(row)
+            return rows
+        except Exception as error:
+            self.console.log(f"[red]Database error")
+            return str(error)
         
     def get_all_blacklist_entries(self) -> list or bool:
         try:
@@ -158,7 +175,7 @@ class DATABASE():
             return (False,resp)
         
     def delete_sleepentry(self,entry_id:str) -> tuple((bool,str)):
-        state:bool = self.check_if_entry_id_exists(enty_id = entry_id)
+        state:bool = self.check_if_entry_id_exists(entry_id = entry_id)
         if state == True:
             try:
                 with closing(sqlite3.connect(self.db_filepath)) as connection:

@@ -1,1 +1,1 @@
-create -date=25.04.2023 -bedtime=23:00 -wake_up_time=08:15 -notes=/ -wake_up_mood=GOOD -wet_bed=NO -at_home=YES
+create-sleepentry -date=12.12.2023 -bedtime=00:00 -wake_up_time=04:00 -notes=hunger,oder so,essen,trinken -wake_up_mood=GOOD -wet_bed=NO -at_home=YES

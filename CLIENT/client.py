@@ -127,8 +127,9 @@ class CLIENT():
                 try:
                     try:
                         client_command:str = input(b)
-                        if len(client_command) == 0 or client_command == " " or client_command == ' ':
-                            pass
+                        if len(client_command) == 0 or client_command == " " or client_command == ' ' or client_command.lower().strip() == "clear":
+                            if client_command.lower().strip() == "clear":
+                                os.system("clear")
                         else:
                             state = self.send(msg = client_command)
                             if type(state) == bool:
