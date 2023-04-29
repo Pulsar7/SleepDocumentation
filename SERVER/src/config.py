@@ -9,8 +9,8 @@ import json
 class CONFIG():
     def __init__(self,console,filepath:str) -> None:
         (self.console,self.filepath) = (console,filepath)
-        
-    def get(self,*args:list[str or int]):
+
+    def get(self,*args:list):
         try:
             with open(self.filepath,'r') as json_file:
                 data = json.load(json_file)

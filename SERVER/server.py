@@ -92,7 +92,7 @@ class SERVER(SLEEPDOCU):
                 }
             },
             'add-blacklist': {
-                "help": "Addes an IP-Address to the blacklist",
+                "help": "Adds an IP-Address to the blacklist",
                 "args": {
                     '-ip=': "IP-Address of the client",
                     '-reason=': "The reason of the block"
@@ -107,6 +107,10 @@ class SERVER(SLEEPDOCU):
                 "args": {
                     "-ip=": "IP-Address of blacklisted client"
                 }
+            },
+            'show-connections': {
+                "help": "Show all clients connected to the server",
+                "args": {}
             }
         }
         super().__init__()
@@ -136,7 +140,23 @@ class SERVER(SLEEPDOCU):
         else:
             print(self.get_now()+self.error.strip()+b+f"Couldn't send the help-message: {state}")
         del help_msg
-
+        
+    def show_connections(self,b:str,client_socket:socket.socket,client_msg:str) -> None:
+        response:str = ""
+        state:str = ""
+        for connection in self.PUB_KEYS:
+            if connection.getpeername() == client_socket.getpeername():
+                state = Fore.LIGHTYELLOW_EX+"YOU       "
+            else:
+                state = Fore.LIGHTGREEN_EX+"CONNECTED "
+            response += state+Fore.LIGHTCYAN_EX+f"{connection.getpeername()}"+"\n"
+        state = self.send(client_socket = client_socket, msg = response)
+        if type(state) == bool:
+            print(self.get_now()+self.info.strip()+b+"Sent connections-details")
+        else:
+            print(self.get_now()+self.error.strip()+b+f"Couldn't send the help-message: {state}")
+        del response
+        
     def get_args_from_msg(self,msg:str,arg_name:str) -> tuple((bool,dict)):
         state:bool = True
         client_args:dict = {}
