@@ -12,7 +12,10 @@
         "exit_command": "exit",
         "buffer_start_keyword": "#BEGIN-BUFFERING#",
         "buffer_stop_keyword": "#END-BUFFERING#",
-        "max_message_len": 100
+        "max_message_len": 100,
+        "max_login_attempts": 3,
+        "block_reason_for_too_many_login_attempts": "You have tried to log in many times. You are banned until further notice.",
+        "whitelist": ["127.0.0.1"]
     },
 
     "database": {

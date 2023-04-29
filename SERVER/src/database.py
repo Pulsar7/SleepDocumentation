@@ -77,18 +77,21 @@ class DATABASE():
         rows:list or str = self.get_element(table_name = self.blacklist_data_table_name, element_name = 'ip', element = data['ip'])
         if type(rows) == list:
             if len(rows) == 0:
-                try:
-                    q_marks:str = ",".join(["?" for e in data])
-                    with closing(sqlite3.connect(self.db_filepath)) as connection:
-                        with closing(connection.cursor()) as cursor:
-                            cursor.execute(f"INSERT INTO {self.blacklist_data_table_name} VALUES({q_marks});", (
-                                data['ip'], data['reason']
-                            ))
-                            connection.commit()
-                    return (True,"")
-                except Exception as error:
-                    self.console.log("[red]Database error")
-                    return (False,str(error))
+                if data['ip'] not in self.conf.get("socket","whitelist"):
+                    try:
+                        q_marks:str = ",".join(["?" for e in data])
+                        with closing(sqlite3.connect(self.db_filepath)) as connection:
+                            with closing(connection.cursor()) as cursor:
+                                cursor.execute(f"INSERT INTO {self.blacklist_data_table_name} VALUES({q_marks});", (
+                                    data['ip'], data['reason']
+                                ))
+                                connection.commit()
+                        return (True,"")
+                    except Exception as error:
+                        self.console.log("[red]Database error")
+                        return (False,str(error))
+                else:
+                    return (False,f"The IP-Address '{data['ip']}' is in the whitelist!")
             else:
                 return (False,f"An blacklist-entray with the IP-Address '{data['ip']}' already exists in the database!")
         else:
@@ -172,6 +175,8 @@ class DATABASE():
                 self.console.log(f"[red]Database error")
                 return (False,str(error))
         else:
+            if len(resp) == 0:
+                resp = "The IP-Address is not in the blacklist!"
             return (False,resp)
         
     def delete_sleepentry(self,entry_id:str) -> tuple((bool,str)):

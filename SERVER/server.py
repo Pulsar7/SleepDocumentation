@@ -51,6 +51,7 @@ class SERVER(SLEEPDOCU):
         self.success:str = Fore.GREEN+"O.K. "+Fore.RESET
         #
         self.PUB_KEYS:dict = {}
+        self.LOGIN_ATTEMPTS:dict = {}
         self.commands:dict = {
             'help': {
                 "help": "Shows this screen",
@@ -433,9 +434,9 @@ class SERVER(SLEEPDOCU):
         client_up_state:bool = True
         try:
             client_socket.send(self.encr.get_server_public_key())
-            print(self.get_now()+self.info.strip()+b+"Sent client the public-rsa-key")
+            # print(self.get_now()+self.info.strip()+b+"Sent client the public-rsa-key")
             response = client_socket.recv(65507)
-            print(self.get_now()+self.info.strip()+b+f"Received the client public-rsa-key")
+            # print(self.get_now()+self.info.strip()+b+f"Received the client public-rsa-key")
             if len(response) == len(self.encr.get_server_public_key()):
                 self.PUB_KEYS[client_socket] = self.encr.import_key(key = response)
             else:
@@ -445,20 +446,37 @@ class SERVER(SLEEPDOCU):
             print(self.get_now()+self.error.strip()+b+str(error))
             client_up_state = False
         if client_up_state == True:
+            print(self.get_now()+self.info.strip()+b+"Exchanged public-rsa-keys with client")
             (state,client_pwd) = self.receive(client_socket = client_socket)
             if state == True:
                 auth_response:str = ""
                 if self.conf.get("encryption","user_pwd") == self.encr.hash_pwd(password = client_pwd):
+                    if client_addr[0] in list(self.LOGIN_ATTEMPTS.keys()):
+                        del self.LOGIN_ATTEMPTS[client_addr[0]]
                     print(self.get_now()+self.info.strip()+b+"Received correct password from client")
                     auth_response = "True"
                 else:
-                    print(self.get_now()+self.error.strip()+b+"Received wrong password from client")
+                    if client_addr[0] not in list(self.LOGIN_ATTEMPTS.keys()):
+                        self.LOGIN_ATTEMPTS[client_addr[0]] = {
+                            'time': self.get_now(),
+                            'attempts': 1
+                        }
+                    else:
+                        self.LOGIN_ATTEMPTS[client_addr[0]]['attempts'] += 1
+                    print(self.get_now()+self.error.strip()+b+f"Received wrong password from client (attempts: {self.LOGIN_ATTEMPTS[client_addr[0]]['attempts']})")
+                    if self.LOGIN_ATTEMPTS[client_addr[0]]['attempts'] >= self.conf.get("socket","max_login_attempts"):
+                        print(self.get_now()+self.warning.strip()+b+"Too many login attempts")
+                        block_reason:str = self.conf.get("socket","block_reason_for_too_many_login_attempts")
+                        (state,response) = self.db.add_blacklist_address(data = {'ip':client_addr[0],'reason':block_reason})
+                        if state == True:
+                            print(self.get_now()+self.info.strip()+b+Fore.LIGHTYELLOW_EX+"Added this client to blacklist")
+                        else:
+                            print(self.get_now()+self.error.strip()+b+Fore.LIGHTRED_EX+f"Couldn't add blacklist-entry: {response}")
+                        del self.LOGIN_ATTEMPTS[client_addr[0]]
                     auth_response = "Wrong password!"
                     client_up_state = False
                 state = self.send(client_socket = client_socket, msg = auth_response)
-                if type(state) == bool:
-                    print(self.get_now()+self.info.strip()+b+"Sent client response")
-                else:
+                if type(state) != bool:
                     print(self.get_now()+self.error.strip()+b+"Couldn't send client response: "+state)
                     client_up_state = False
             else:
@@ -469,7 +487,7 @@ class SERVER(SLEEPDOCU):
             try:
                 (state,client_command) = self.receive(client_socket = client_socket)
                 response:str = ""
-                if state == True: # if response == True:
+                if state == True:
                     client_comm:str = client_command.lower().strip().split(" ")[0]
                     if client_command.lower().strip() == self.exit_command:
                         print(self.get_now()+self.info.strip()+b+"Received 'exit' command. Client wants to close connection.")
@@ -560,6 +578,8 @@ class SERVER(SLEEPDOCU):
             print(self.get_now()+self.info+"Closed TCP-socket")
         else:
             print(self.get_now()+self.error+"Failed to start server")
+        self.LOGIN_ATTEMPTS.clear()
+        self.PUB_KEYS.clear()
         print(self.get_now()+self.info+"Closed")
 
 
@@ -569,7 +589,6 @@ pretty.install()
 console = cons.Console()
 #
 conf = config.CONFIG(console = console, filepath = 'src/config.json')
-encr = encryption.ENCRYPTION(console = console, conf = conf)
 #
 default_server_ip:str = conf.get("socket","default_server_ip")
 default_server_port:int = conf.get("socket","default_server_port")
@@ -590,6 +609,8 @@ db = database.DATABASE(console = console, conf = conf, db_filepath = args.db)
 state:bool = db.create_tables()
 if state == False:
     sys.exit()
+#
+encr = encryption.ENCRYPTION(console = console, conf = conf)
 #
 
 if __name__ == '__main__':

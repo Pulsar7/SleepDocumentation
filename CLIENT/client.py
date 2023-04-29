@@ -13,8 +13,8 @@ from src import encryption
 
 
 class CLIENT():
-    def __init__(self,server_ip:str,server_port:int,client_port:int,encr,tz:str) -> None:
-        (self.server_ip,self.server_port,self.client_port,self.encr,self.timezone) = (server_ip,server_port,client_port,encr,tz)
+    def __init__(self,server_ip:str,server_port:int,client_port:int,encr,tz:str,client_ip:str) -> None:
+        (self.server_ip,self.server_port,self.client_port,self.encr,self.timezone,self.client_ip) = (server_ip,server_port,client_port,encr,tz,client_ip)
         #
         self.info:str = Fore.RESET+"["+Fore.YELLOW+"INFO"+Fore.RESET+"] "
         self.error:str = Fore.RESET+"["+Fore.RED+"ERROR"+Fore.RESET+"]"+Fore.RED+" "
@@ -36,7 +36,7 @@ class CLIENT():
     def create_socket(self) -> socket.socket or str:
         try:
             client = socket.socket(socket.AF_INET,socket.SOCK_STREAM) # TCP
-            client.bind(('0.0.0.0',self.client_port)) # probably not neccessary
+            client.bind((self.client_ip,self.client_port)) # probably not neccessary
             return client
         except Exception as error:
             return str(error) 
@@ -169,6 +169,7 @@ init()
 console = cons.Console()
 #
 default_server_ip:str = 'localhost'
+client_ip:str = '0.0.0.0'
 default_server_port:int = 1337
 default_client_port:int = 1345
 default_rsa_key_size:int = 3072
@@ -191,5 +192,5 @@ encr = encryption.ENCRYPTION(console = console, rsa_key_size = args.rsa)
 if __name__ == '__main__':
     os.system("clear") #
     client = CLIENT(server_ip = args.ip, server_port = args.sport, 
-        client_port = args.cport, encr = encr, tz = args.timezone)
+        client_port = args.cport, encr = encr, tz = args.timezone, client_ip = client_ip)
     client.run()
